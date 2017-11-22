@@ -22,12 +22,12 @@ TOTP.prototype.validate = function (token, float = 180) {
 // The Device is complete - don't change it
 function Device(secret) {
   this.counter = 0;
-  this.totp = new TOTP(secret);
+  this.hotp = new HOTP(secret);
 }
 
 Device.prototype.generateHOTP = function () {
   this.counter++;
-  return this.totp.generate();
+  return this.hotp.generate();
 };
 
 
