@@ -27,7 +27,7 @@ function Device(secret) {
 
 Device.prototype.generateHOTP = function () {
   this.counter++;
-  return this.hotp.generate();
+  return this.hotp.generate(this.counter);
 };
 
 
