@@ -19,6 +19,27 @@ TOTP.prototype.validate = function (token, float = 180) {
 
 
 
+// The Device is complete - don't change it
+function Device(secret) {
+  this.counter = 0;
+  this.totp = new TOTP(secret);
+}
+
+Device.prototype.generateHOTP = function () {
+  this.counter++;
+  return this.totp.generate();
+};
+
+
+// Change the server!
+function Server(secret) {
+}
+
+Server.prototype.validateHOTP = function (token, float = 50) {
+};
+
+
+
 
 /******************
  * UTIL FUNCTIONS *

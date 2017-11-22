@@ -11,7 +11,6 @@ describe('HOTP', () => {
     const hotp = new HOTP(secret);
 
     expect(hotp.generate(0)).to.equal('91e224439e');
-    expect(hotp.generate(1511373851)).to.equal('91e224439e');
     expect(hotp.generate(50)).to.equal('df9c7b0dec');
     expect(hotp.generate(1000)).to.equal('e9fcab7662');
   });
@@ -98,4 +97,89 @@ describe('TOTP', () => {
       done();
     }, 2050);
   }).timeout(5000);
+});
+
+describe('Server', () => {
+  it('should be initiable', () => {
+    const server = new Server(secret);
+
+    expect(server).to.be.a(Server);
+  });
+
+  it('should validate against device on first generated token', () => {
+    const device = new Device(secret);
+    const token = device.generateHOTP();
+
+    const server = new Server(secret);
+
+    expect(server.validateHOTP(token)).to.equal(true);
+  });
+
+  it('should validate against device when device button mashed', () => {
+    const device = new Device(secret);
+
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+
+    const token = device.generateHOTP();
+
+    const server = new Server(secret);
+
+    expect(server.validateHOTP(token)).to.equal(true);
+  });
+
+  it('should remember previous counter', () => {
+    const device = new Device(secret);
+    const server = new Server(secret);
+
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+
+    const token = device.generateHOTP();
+
+    expect(server.validateHOTP(token, 15)).to.equal(true);
+
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+
+    const token2 = device.generateHOTP();
+
+    expect(server.validateHOTP(token2, 15)).to.equal(true);
+
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+    device.generateHOTP();
+
+    const token3 = device.generateHOTP();
+
+    expect(server.validateHOTP(token3, 15)).to.equal(true);
+  });
 });
